@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-eco-success: #2ECC71;
+  --color-eco-warning: #F1C40F;
+  --color-eco-danger: #E74C3C;
+  --color-eco-dark: #0F172A;
+  --color-eco-card: #1E293B;
+  --color-eco-text: #F8FAFC;
+  --color-eco-text-muted: #94A3B8;
+
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-eco-dark text-eco-text font-sans antialiased;
+  }
+}
