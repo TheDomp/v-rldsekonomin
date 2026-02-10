@@ -60,7 +60,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                             <div>
                                 <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
                                     <Activity className="text-[var(--color-eco-success)]" />
-                                    Hälso-Index: <span className={statusColor}>{country.healthIndex}</span>
+                                    Hälso-Index: <span className={statusColor}>{country.healthIndex ?? 'Saknas'}</span>
                                 </h3>
 
                                 <div className="space-y-6">
@@ -86,7 +86,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                 <div className="space-y-4">
                                     <WarningSignal
                                         title="Credit-to-GDP Gap"
-                                        value={country.metrics.creditToGdpGap || 0}
+                                        value={country.metrics.creditToGdpGap ?? 0}
                                         unit="%"
                                         threshold={10}
                                         isUpperLimit={true}
@@ -94,7 +94,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                     />
                                     <WarningSignal
                                         title="Debt Service Ratio (DSR)"
-                                        value={country.metrics.debtServiceRatio || 0}
+                                        value={country.metrics.debtServiceRatio ?? 0}
                                         unit="%"
                                         threshold={20}
                                         isUpperLimit={true}
@@ -102,7 +102,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                     />
                                     <WarningSignal
                                         title="REER Misalignment"
-                                        value={country.metrics.reerMisalignment || 0}
+                                        value={country.metrics.reerMisalignment ?? 0}
                                         unit="%"
                                         threshold={10}
                                         isUpperLimit={true}
@@ -115,19 +115,19 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                     <div className="grid grid-cols-2 gap-4">
                                         <StatBox
                                             label="Reserver (mån)"
-                                            value={country.metrics.reservesMonths !== null ? country.metrics.reservesMonths.toFixed(1) : 'Saknas'}
+                                            value={country.metrics.reservesMonths.value !== null ? country.metrics.reservesMonths.value.toFixed(1) : 'Saknas'}
                                         />
                                         <StatBox
                                             label="Statsskuld / BNP"
-                                            value={country.metrics.debtToGdp !== null && country.metrics.debtToGdp > 0 ? `${country.metrics.debtToGdp.toFixed(1)}%` : 'Saknas'}
+                                            value={country.metrics.debtToGdp.value !== null && country.metrics.debtToGdp.value > 0 ? `${country.metrics.debtToGdp.value.toFixed(1)}%` : 'Saknas'}
                                         />
                                         <StatBox
                                             label="Budgetunderskott"
-                                            value={country.metrics.deficitGdp !== null ? `${country.metrics.deficitGdp}%` : 'Saknas'}
+                                            value={country.metrics.deficitGdp.value !== null ? `${country.metrics.deficitGdp.value}%` : 'Saknas'}
                                         />
                                         <StatBox
                                             label="Dollarberoende"
-                                            value={country.metrics.debtUsdShare !== null ? `${country.metrics.debtUsdShare}%` : 'Saknas'}
+                                            value={country.metrics.debtUsdShare.value !== null ? `${country.metrics.debtUsdShare.value}%` : 'Saknas'}
                                         />
                                     </div>
                                 </div>
@@ -141,20 +141,22 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
     );
 };
 
-const PillarRow = ({ title, value, icon, color }: { title: string, value: number, icon: any, color: string }) => (
+const PillarRow = ({ title, value, icon, color }: { title: string, value: number | null, icon: any, color: string }) => (
     <div>
         <div className="flex justify-between items-center mb-1 text-sm">
             <div className="flex items-center gap-2 text-[var(--color-eco-text-muted)]">
                 {React.cloneElement(icon, { className: "w-4 h-4" })}
                 {title}
             </div>
-            <span className="font-bold">{value}/100</span>
+            <span className={clsx("font-bold", value === null && "text-slate-500 font-normal")}>
+                {value !== null ? `${value}/100` : 'Data Saknas'}
+            </span>
         </div>
         <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
             <motion.div
                 className={clsx("h-full", color)}
                 initial={{ width: 0 }}
-                animate={{ width: `${value}%` }}
+                animate={{ width: `${value ?? 0}%` }}
                 transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
             />
         </div>

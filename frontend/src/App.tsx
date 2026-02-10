@@ -7,6 +7,7 @@ import { Activity, Globe, RefreshCcw, LayoutGrid, Map as MapIcon, TrendingUp } f
 import { useCountryData } from './hooks/useCountryData';
 import { WorldMap } from './components/WorldMap';
 import { ComparisonView } from './components/ComparisonView';
+import { PowerhouseView } from './components/PowerhouseView';
 import clsx from 'clsx';
 import { AnimatePresence } from 'framer-motion';
 
@@ -118,6 +119,8 @@ function App() {
             {error}
           </div>
         )}
+
+        <PowerhouseView />
 
         <AnimatePresence>
           {isComparisonOpen && countries.length >= 2 && (

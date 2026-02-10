@@ -1,4 +1,4 @@
-import type { CountryData, EconomicPillars, EconomicMetrics } from './types';
+import type { CountryData, EconomicPillars, EconomicMetrics, MetricData } from './types';
 import type { CountryOption } from './countries';
 import { calculateHealthIndex, getHealthStatus } from './healthEngine';
 
@@ -98,6 +98,45 @@ export async function fetchAllCountries(): Promise<CountryOption[]> {
 /**
  * Fetches data for a specific country from World Bank API
  */
+// Fallback / Override Data for Powerhouse Synchronization (Q3 2024)
+const FALLBACK_DATA: Record<string, Partial<Record<keyof EconomicMetrics, number>>> = {
+    'EUU': {
+        debtToGdp: 81.6 // Source: Eurostat Q3 2024
+    },
+    'CHN': {
+        debtToGdp: 88.3, // Source: IMF 2024 Est
+        gdpGrowth: 4.6,  // Source: NBS China Q3 2024
+        inflation: 0.4   // Source: NBS China Q3 2024
+    },
+    'USA': {
+        debtToGdp: 120.2 // Source: St. Louis Fed Q3 2024
+    },
+    'RUS': {
+        debtToGdp: 20.3, // Source: FocusEconomics 2024 Est
+        gdpGrowth: 3.1,  // Source: Rosstat Q3 2024 Preliminary
+        inflation: 8.6   // Source: CBR Q3 2024
+    }
+};
+
+const FALLBACK_METADATA: Record<string, Partial<Record<keyof EconomicMetrics, { source: string, year: string }>>> = {
+    'EUU': {
+        debtToGdp: { source: 'Eurostat', year: 'Q3 2024' }
+    },
+    'CHN': {
+        debtToGdp: { source: 'IMF Est', year: '2024' },
+        gdpGrowth: { source: 'NBS', year: 'Q3 2024' },
+        inflation: { source: 'NBS', year: 'Q3 2024' }
+    },
+    'USA': {
+        debtToGdp: { source: 'St. Louis Fed', year: 'Q3 2024' }
+    },
+    'RUS': {
+        debtToGdp: { source: 'FocusEconomics', year: '2024' },
+        gdpGrowth: { source: 'Rosstat', year: 'Q3 2024' },
+        inflation: { source: 'CBR', year: 'Q3 2024' }
+    }
+};
+
 export async function fetchCountryData(isoCode: string): Promise<CountryData | null> {
     const code = isoCode.toUpperCase();
 
@@ -110,13 +149,12 @@ export async function fetchCountryData(isoCode: string): Promise<CountryData | n
 
         // 2. Fetch specific economic indicators
         const promises = Object.entries(INDICATORS).map(async ([key, indicatorCode]) => {
-            const url = `${WB_API_BASE}/${code}/indicator/${indicatorCode}?format=json&per_page=1&date=2020:2025`; // Get most recent in last 5 years
+            const url = `${WB_API_BASE}/${code}/indicator/${indicatorCode}?format=json&per_page=1&date=2020:2025`;
             const response = await fetch(url);
             const data: WBResponse = await response.json();
 
             // Check if response is valid ([metadata, data])
             if (!Array.isArray(data) || data.length < 2 || !data[1]) {
-                console.warn(`No data for ${key} (${indicatorCode}) for ${code}`);
                 return { key, value: null, year: null };
             }
 
@@ -131,7 +169,6 @@ export async function fetchCountryData(isoCode: string): Promise<CountryData | n
         const years = results.map(r => r.year).filter(y => y !== null) as string[];
 
         if (years.length > 0) {
-            // Simple mode year
             mostCommonYear = years.sort((a, b) => years.filter(v => v === a).length - years.filter(v => v === b).length).pop() || 'N/A';
         }
 
@@ -140,42 +177,70 @@ export async function fetchCountryData(isoCode: string): Promise<CountryData | n
             return acc;
         }, {} as Record<string, number | null>);
 
+        // Initialize Metrics with Default World Bank Data
+        let metricsValues = {
+            reservesMonths: dataMap.reserves,
+            gdpGrowth: dataMap.gdpGrowth,
+            inflation: dataMap.inflation,
+            debtToGdp: dataMap.govDebt,
+            currentAccount: dataMap.currentAccount,
+        };
 
-        // Real application would likely flag this as "Data Missing" in UI
-        let reserves = dataMap.reserves;
-        let gdpGrowth = dataMap.gdpGrowth;
-        let govDebt = dataMap.govDebt;
-        let inflation = dataMap.inflation;
+        // Apply Fallbacks / Overrides
+        if (FALLBACK_DATA[code]) {
+            const fallback = FALLBACK_DATA[code];
+            metricsValues = { ...metricsValues, ...fallback };
+            console.info(`Applied fallback data for ${code}`);
+        }
 
+        // Helper to create MetricData object
+        const createMetric = (key: keyof typeof metricsValues, _wbValue: number | null, wbYear: string | null): MetricData => {
+            const val = metricsValues[key];
 
-        // Normalize to 0-100 scores for the Health Engine
-        // These mappings are arbitrary for this demo but logic-based
+            // Check if we used a fallback
+            if (FALLBACK_DATA[code] && FALLBACK_DATA[code][key] !== undefined) {
+                const meta = FALLBACK_METADATA[code]?.[key];
+                return { value: val ?? null, source: meta?.source || 'Override', year: meta?.year || '2024' };
+            }
 
-        // Liquidity: Reserves in months (target > 6 months)
-        // Treat null as 0 (Danger) for scoring if missing, to avoid false confidence
-        const liquidityScore = reserves !== null ? Math.min((reserves / 6) * 100, 100) : 0;
+            return { value: val ?? null, source: 'World Bank', year: wbYear || mostCommonYear };
+        }
 
-        // Burn Rate: Inverse of current account? Or separate? 
-        // Using simple mock logic for demo based on inflation/growth balance
+        const metrics: EconomicMetrics = {
+            reservesMonths: createMetric('reservesMonths', dataMap.reserves, mostCommonYear),
+            gdpGrowth: createMetric('gdpGrowth', dataMap.gdpGrowth, mostCommonYear),
+            inflation: createMetric('inflation', dataMap.inflation, mostCommonYear),
+            debtToGdp: createMetric('debtToGdp', dataMap.govDebt, mostCommonYear),
+            currentAccount: createMetric('currentAccount', dataMap.currentAccount, mostCommonYear),
+            deficitGdp: { value: null, source: 'World Bank', year: mostCommonYear },
+            debtUsdShare: { value: null, source: 'World Bank', year: mostCommonYear },
+            dependencyRatio: 50, // Placeholder
+            creditToGdpGap: null,
+            debtServiceRatio: null,
+            reerMisalignment: null
+        };
 
-        const burnRateScore = inflation !== null ? Math.max(0, 100 - (inflation * 5)) : 50;
+        // ... Pillars Calculation (uses raw numbers) ...
 
-        // Debt Structure: Inverse of Debt/GDP (target < 60%)
-        // If debt is null, we can't score it. Return 50 (Neutral/Unknown) or 0 (Risk)? 
-        // 50 is safer than 100 (which 0% debt would be).
-        const debtScore = govDebt !== null ? Math.max(0, 100 - Math.max(0, govDebt - 40)) : 50;
+        // Liquidity
+        const liquidityScore = metrics.reservesMonths.value !== null ? Math.min((metrics.reservesMonths.value / 6) * 100, 100) : null;
 
-        // Real Growth: Target > 3%
-        const growthScore = gdpGrowth !== null ? Math.min(Math.max(0, (gdpGrowth + 2) * 20), 100) : 50;
+        // Burn Rate
+        const burnRateScore = metrics.inflation.value !== null ? Math.max(0, 100 - (metrics.inflation.value * 5)) : null;
 
-        // Demographics: Placeholder (50)
+        // Debt Structure
+        const debtScore = metrics.debtToGdp.value !== null ? Math.max(0, 100 - Math.max(0, metrics.debtToGdp.value - 40)) : null;
+
+        // Real Growth
+        const growthScore = metrics.gdpGrowth.value !== null ? Math.min(Math.max(0, (metrics.gdpGrowth.value + 2) * 20), 100) : null;
+
         const demographicsScore = 50;
 
         const pillars: EconomicPillars = {
-            liquidity: Math.round(liquidityScore),
-            burnRate: Math.round(burnRateScore),
-            debtStructure: Math.round(debtScore),
-            realGrowth: Math.round(growthScore),
+            liquidity: liquidityScore !== null ? Math.round(liquidityScore) : null,
+            burnRate: burnRateScore !== null ? Math.round(burnRateScore) : null,
+            debtStructure: debtScore !== null ? Math.round(debtScore) : null,
+            realGrowth: growthScore !== null ? Math.round(growthScore) : null,
             demographics: demographicsScore
         };
 
@@ -184,19 +249,8 @@ export async function fetchCountryData(isoCode: string): Promise<CountryData | n
 
         // Create Metadata Metaphor
         let metaphor = generateMetaphor(status);
-        if ((gdpGrowth || 0) > 5) metaphor += " Stark tillväxtmotor.";
-        if ((inflation || 0) > 10) metaphor += " Överhettad.";
-
-        const metrics: EconomicMetrics = {
-            reservesMonths: reserves,
-            gdpGrowth: gdpGrowth,
-            inflation: inflation,
-            debtToGdp: govDebt,
-            currentAccount: dataMap.currentAccount,
-            deficitGdp: null, // Not yet fetched
-            debtUsdShare: null, // Not yet fetched
-            dependencyRatio: demographicsScore // Proxy using the score for now
-        };
+        if ((metrics.gdpGrowth.value || 0) > 5) metaphor += " Stark tillväxtmotor.";
+        if ((metrics.inflation.value || 0) > 10) metaphor += " Överhettad.";
 
         return {
             id: code,
@@ -212,7 +266,7 @@ export async function fetchCountryData(isoCode: string): Promise<CountryData | n
 
     } catch (error) {
         console.error(`Failed to fetch data for ${code}:`, error);
-        return null;
+        return null; // Return null to handle gracefully
     }
 }
 
@@ -221,6 +275,6 @@ function generateMetaphor(status: string): string {
         case 'Success': return "Ett väloljat maskineri.";
         case 'Warning': return "Varningslampor blinkar.";
         case 'Danger': return "Kritisk systemnivå.";
-        default: return "Status okänd.";
+        default: return "Inväntar mer data för diagnos.";
     }
 }

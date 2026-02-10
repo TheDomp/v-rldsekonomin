@@ -92,7 +92,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ countries, onClo
                                 {countries.map((entry, index) => (
                                     <motion.rect
                                         key={`cell-${index}`}
-                                        fill={entry.healthIndex > 70 ? '#2ECC71' : entry.healthIndex > 40 ? '#F1C40F' : '#E74C3C'}
+                                        fill={entry.healthIndex === null ? '#475569' : (entry.healthIndex > 70 ? '#2ECC71' : entry.healthIndex > 40 ? '#F1C40F' : '#E74C3C')}
                                     />
                                 ))}
                             </Bar>
@@ -117,7 +117,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ countries, onClo
                             <td className="py-4 px-4 text-slate-400 whitespace-nowrap">BNP Tillväxt (%)</td>
                             {countries.map(c => (
                                 <td key={c.id} className="py-4 px-4 text-white text-center">
-                                    {c.metrics.gdpGrowth !== null ? `${c.metrics.gdpGrowth.toFixed(1)}%` : 'Saknas'}
+                                    {c.metrics.gdpGrowth.value !== null ? `${c.metrics.gdpGrowth.value.toFixed(1)}%` : 'Saknas'}
                                 </td>
                             ))}
                         </tr>
@@ -125,7 +125,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ countries, onClo
                             <td className="py-4 px-4 text-slate-400 whitespace-nowrap">Inflation (%)</td>
                             {countries.map(c => (
                                 <td key={c.id} className="py-4 px-4 text-white text-center">
-                                    {c.metrics.inflation !== null ? `${c.metrics.inflation.toFixed(1)}%` : 'Saknas'}
+                                    {c.metrics.inflation.value !== null ? `${c.metrics.inflation.value.toFixed(1)}%` : 'Saknas'}
                                 </td>
                             ))}
                         </tr>
@@ -133,7 +133,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ countries, onClo
                             <td className="py-4 px-4 text-slate-400 whitespace-nowrap">Statsskuld (% av BNP)</td>
                             {countries.map(c => (
                                 <td key={c.id} className="py-4 px-4 text-white text-center">
-                                    {c.metrics.debtToGdp !== null && c.metrics.debtToGdp > 0 ? `${c.metrics.debtToGdp.toFixed(1)}%` : 'Saknas'}
+                                    {c.metrics.debtToGdp.value !== null && c.metrics.debtToGdp.value > 0 ? `${c.metrics.debtToGdp.value.toFixed(1)}%` : 'Saknas'}
                                 </td>
                             ))}
                         </tr>
@@ -141,7 +141,7 @@ export const ComparisonView: React.FC<ComparisonViewProps> = ({ countries, onClo
                             <td className="py-4 px-4 text-slate-400 whitespace-nowrap">Likviditetsreserv (mån)</td>
                             {countries.map(c => (
                                 <td key={c.id} className="py-4 px-4 text-white text-center">
-                                    {c.metrics.reservesMonths !== null ? c.metrics.reservesMonths.toFixed(1) : 'Saknas'}
+                                    {c.metrics.reservesMonths.value !== null ? c.metrics.reservesMonths.value.toFixed(1) : 'Saknas'}
                                 </td>
                             ))}
                         </tr>
