@@ -34,7 +34,7 @@ export const WarningSignal: React.FC<WarningSignalProps> = ({
             </div>
             <p className="text-xs text-[var(--color-eco-text-muted)] mb-2">{description}</p>
             <div className="text-xs text-slate-500">
-                Tröskelvärde: {isUpperLimit ? '>' : '<'} {threshold}{unit}
+                Threshold: {isUpperLimit ? '>' : '<'} {threshold}{unit}
             </div>
         </div>
     );

@@ -21,8 +21,8 @@ export const FiscalRunway: React.FC<FiscalRunwayProps> = ({ months }) => {
     return (
         <div className="w-full mt-4">
             <div className="flex justify-between text-xs text-[var(--color-eco-text-muted)] mb-1">
-                <span>Likviditetsreserv</span>
-                <span>{months !== null ? `${months.toFixed(1)} mån` : 'Saknas'}</span>
+                <span>Liquidity Reserve</span>
+                <span>{months !== null ? `${months.toFixed(1)} months` : 'N/A'}</span>
             </div>
             <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
                 <motion.div

@@ -11,12 +11,11 @@ interface CountrySelectorProps {
     onClose: () => void;
     selectedCodes: string[];
     onToggle: (code: string) => void;
-    onSelectAll: (codes: string[]) => void;
     onClear: () => void;
 }
 
 export const CountrySelector: React.FC<CountrySelectorProps> = ({
-    isOpen, onClose, selectedCodes, onToggle, onSelectAll, onClear
+    isOpen, onClose, selectedCodes, onToggle, onClear
 }) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const [allCountries, setAllCountries] = useState<CountryOption[]>(AVAILABLE_COUNTRIES);
@@ -58,8 +57,8 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
                         <div className="flex-1">
                             <div className="flex items-center gap-2 mb-4">
                                 <Globe className="w-6 h-6 text-[var(--color-eco-success)]" />
-                                <h2 className="text-2xl font-bold text-white">Välj Länder</h2>
-                                {isLoading && <span className="text-xs text-slate-400 animate-pulse ml-2">Uppdaterar lista...</span>}
+                                <h2 className="text-2xl font-bold text-white">Select Countries</h2>
+                                {isLoading && <span className="text-xs text-slate-400 animate-pulse ml-2">Updating list...</span>}
                             </div>
                             <div className="relative">
                                 <X
@@ -72,7 +71,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                                 <input
                                     type="text"
-                                    placeholder="Sök land (t.ex. Estland), kod eller region..."
+                                    placeholder="Search country (e.g. Estonia), code or region..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full bg-slate-800 border border-slate-700 rounded-xl py-3 pl-10 pr-10 text-white focus:outline-none focus:border-[var(--color-eco-success)] transition-all"
@@ -117,12 +116,12 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
                             </div>
                         ) : (
                             <div className="flex flex-col items-center justify-center py-12 text-[var(--color-eco-text-muted)]">
-                                <p className="text-lg">Inga länder matchar "{searchTerm}"</p>
+                                <p className="text-lg">No countries match "{searchTerm}"</p>
                                 <button
                                     onClick={() => setSearchTerm('')}
                                     className="mt-4 text-[var(--color-eco-success)] hover:underline"
                                 >
-                                    Rensa sökning
+                                    Clear search
                                 </button>
                             </div>
                         )}
@@ -132,30 +131,23 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({
                     <div className="p-6 border-t border-slate-700 flex justify-between items-center bg-slate-900/50 rounded-b-2xl">
                         <div className="flex items-center gap-4">
                             <span className="text-sm text-[var(--color-eco-text-muted)]">
-                                {selectedCodes.length} länder valda
+                                {selectedCodes.length} countries selected
                             </span>
                             {selectedCodes.length > 0 && (
                                 <button
                                     onClick={onClear}
                                     className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors uppercase tracking-wider"
                                 >
-                                    Rensa alla
+                                    Clear all
                                 </button>
                             )}
-                            {filteredCountries.length > 0 && (
-                                <button
-                                    onClick={() => onSelectAll(filteredCountries.map(c => c.code))}
-                                    className="text-xs font-bold text-[var(--color-eco-success)] hover:text-green-300 transition-colors uppercase tracking-wider"
-                                >
-                                    Välj alla sökresultat
-                                </button>
-                            )}
+                            {/* Bulk select removed per user request to avoid API overload */}
                         </div>
                         <button
                             onClick={onClose}
                             className="px-6 py-2 bg-[var(--color-eco-success)] text-black font-bold rounded-lg hover:bg-green-400 transition-colors"
                         >
-                            Klar
+                            Done
                         </button>
                     </div>
                 </motion.div>

@@ -71,7 +71,7 @@ export const CountryCard: React.FC<CountryCardProps> = ({ country, onClick }) =>
             <div className="grid grid-cols-3 gap-2 mb-4 relative z-10">
                 {/* Growth */}
                 <div className="p-2 rounded-lg bg-white/5 flex flex-col items-center">
-                    <span className="text-[10px] uppercase text-slate-500 mb-1">Tillväxt</span>
+                    <span className="text-[10px] uppercase text-slate-500 mb-1">Growth</span>
                     <span className={clsx("font-mono font-bold text-sm whitespace-nowrap",
                         country.metrics.gdpGrowth.value === null ? 'text-slate-500' :
                             (country.metrics.gdpGrowth.value ?? 0) > 2 ? 'text-green-400' : 'text-red-400'
@@ -93,7 +93,7 @@ export const CountryCard: React.FC<CountryCardProps> = ({ country, onClick }) =>
 
                 {/* Debt */}
                 <div className="p-2 rounded-lg bg-white/5 flex flex-col items-center">
-                    <span className="text-[10px] uppercase text-slate-500 mb-1">Skuld</span>
+                    <span className="text-[10px] uppercase text-slate-500 mb-1">Debt</span>
                     <span className={clsx("font-mono font-bold text-sm whitespace-nowrap",
                         country.metrics.debtToGdp.value === null ? 'text-slate-500' :
                             (country.metrics.debtToGdp.value ?? 0) < 60 ? 'text-green-400' : 'text-yellow-400'

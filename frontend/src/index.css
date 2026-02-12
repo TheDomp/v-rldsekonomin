@@ -18,3 +18,9 @@
     @apply bg-eco-dark text-eco-text font-sans antialiased;
   }
 }
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

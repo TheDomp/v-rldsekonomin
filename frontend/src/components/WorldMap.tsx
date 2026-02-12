@@ -29,8 +29,8 @@ export const WorldMap: React.FC<WorldMapProps> = ({
     return (
         <div className="w-full aspect-[16/9] bg-slate-900/50 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl relative">
             <div className="absolute top-4 left-4 z-10">
-                <h3 className="text-lg font-bold text-white">Global Hälsokarta</h3>
-                <p className="text-xs text-[var(--color-eco-text-muted)]">Klicka på ett land för att välja/se detaljer</p>
+                <h3 className="text-lg font-bold text-white">Global Health Map</h3>
+                <p className="text-xs text-[var(--color-eco-text-muted)]">Click a country to select/view details</p>
             </div>
 
             <div className="absolute bottom-4 left-4 z-10 flex gap-4 text-xs">

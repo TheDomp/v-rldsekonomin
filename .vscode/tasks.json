@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "test",
+            "path": "frontend",
+            "problemMatcher": [],
+            "label": "Run Playwright Tests",
+            "detail": "Runs the full test suite via npm",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+}

@@ -60,15 +60,15 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                             <div>
                                 <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
                                     <Activity className="text-[var(--color-eco-success)]" />
-                                    Hälso-Index: <span className={statusColor}>{country.healthIndex ?? 'Saknas'}</span>
+                                    Health Index: <span className={statusColor}>{country.healthIndex ?? 'N/A'}</span>
                                 </h3>
 
                                 <div className="space-y-6">
-                                    <PillarRow title="Likviditet" value={country.pillars.liquidity} icon={<Wallet />} color="bg-blue-500" />
+                                    <PillarRow title="Liquidity" value={country.pillars.liquidity} icon={<Wallet />} color="bg-blue-500" />
                                     <PillarRow title="Burn Rate" value={country.pillars.burnRate} icon={<TrendingUp />} color="bg-red-500" />
-                                    <PillarRow title="Skuldstruktur" value={country.pillars.debtStructure} icon={<ShieldCheck />} color="bg-purple-500" />
-                                    <PillarRow title="Real Tillväxt" value={country.pillars.realGrowth} icon={<TrendingUp />} color="bg-green-500" />
-                                    <PillarRow title="Demografi" value={country.pillars.demographics} icon={<Users />} color="bg-orange-500" />
+                                    <PillarRow title="Debt Structure" value={country.pillars.debtStructure} icon={<ShieldCheck />} color="bg-purple-500" />
+                                    <PillarRow title="Real Growth" value={country.pillars.realGrowth} icon={<TrendingUp />} color="bg-green-500" />
+                                    <PillarRow title="Demographics" value={country.pillars.demographics} icon={<Users />} color="bg-orange-500" />
                                 </div>
 
                                 <div className="mt-8 p-4 bg-slate-800/50 rounded-lg italic text-[var(--color-eco-text-muted)] border-l-4 border-slate-600">
@@ -80,7 +80,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                             <div>
                                 <h3 className="text-xl font-semibold mb-6 text-[var(--color-eco-warning)] flex items-center gap-2">
                                     <AlertTriangle className="text-[var(--color-eco-warning)]" />
-                                    Osynliga Varningssignaler
+                                    Invisible Warning Signals
                                 </h3>
 
                                 <div className="space-y-4">
@@ -90,7 +90,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                         unit="%"
                                         threshold={10}
                                         isUpperLimit={true}
-                                        description="Avvikelse från långsiktig trend. Över 10% indikerar överhettning."
+                                        description="Deviation from long-term trend. >10% indicates overheating."
                                     />
                                     <WarningSignal
                                         title="Debt Service Ratio (DSR)"
@@ -98,7 +98,7 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                         unit="%"
                                         threshold={20}
                                         isUpperLimit={true}
-                                        description="Andel av inkomst som går till räntor och amorteringar."
+                                        description="Share of income used for interest and amortization."
                                     />
                                     <WarningSignal
                                         title="REER Misalignment"
@@ -106,28 +106,28 @@ export const DetailView: React.FC<DetailViewProps> = ({ country, onClose }) => {
                                         unit="%"
                                         threshold={10}
                                         isUpperLimit={true}
-                                        description="Valutans övervärdering mot fundamenta."
+                                        description="Currency overvaluation against fundamentals."
                                     />
                                 </div>
 
                                 <div className="mt-8">
-                                    <h4 className="font-semibold mb-4 text-slate-300">Ekonomiska Nyckeltal</h4>
+                                    <h4 className="font-semibold mb-4 text-slate-300">Key Economic Indicators</h4>
                                     <div className="grid grid-cols-2 gap-4">
                                         <StatBox
-                                            label="Reserver (mån)"
-                                            value={country.metrics.reservesMonths.value !== null ? country.metrics.reservesMonths.value.toFixed(1) : 'Saknas'}
+                                            label="Reserves (months)"
+                                            value={country.metrics.reservesMonths.value !== null ? country.metrics.reservesMonths.value.toFixed(1) : 'N/A'}
                                         />
                                         <StatBox
-                                            label="Statsskuld / BNP"
-                                            value={country.metrics.debtToGdp.value !== null && country.metrics.debtToGdp.value > 0 ? `${country.metrics.debtToGdp.value.toFixed(1)}%` : 'Saknas'}
+                                            label="Public Debt / GDP"
+                                            value={country.metrics.debtToGdp.value !== null && country.metrics.debtToGdp.value > 0 ? `${country.metrics.debtToGdp.value.toFixed(1)}%` : 'N/A'}
                                         />
                                         <StatBox
-                                            label="Budgetunderskott"
-                                            value={country.metrics.deficitGdp.value !== null ? `${country.metrics.deficitGdp.value}%` : 'Saknas'}
+                                            label="Budget Deficit"
+                                            value={country.metrics.deficitGdp.value !== null ? `${country.metrics.deficitGdp.value}%` : 'N/A'}
                                         />
                                         <StatBox
-                                            label="Dollarberoende"
-                                            value={country.metrics.debtUsdShare.value !== null ? `${country.metrics.debtUsdShare.value}%` : 'Saknas'}
+                                            label="Dollar Dependence"
+                                            value={country.metrics.debtUsdShare.value !== null ? `${country.metrics.debtUsdShare.value}%` : 'N/A'}
                                         />
                                     </div>
                                 </div>
@@ -149,7 +149,7 @@ const PillarRow = ({ title, value, icon, color }: { title: string, value: number
                 {title}
             </div>
             <span className={clsx("font-bold", value === null && "text-slate-500 font-normal")}>
-                {value !== null ? `${value}/100` : 'Data Saknas'}
+                {value !== null ? `${value}/100` : 'Data Missing'}
             </span>
         </div>
         <div className="h-2 w-full bg-slate-700 rounded-full overflow-hidden">
